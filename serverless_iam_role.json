@@ -1,0 +1,68 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "cf1",
+            "Effect": "Deny",
+            "Action": "*",
+            "Resource": "arn:aws:iam::acc_number:policy/CloudFormationMyRules"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:UpdateStack"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "ForAllValues:StringEquals": {
+                    "cloudformation:TemplateUrl": [
+                        "https://s3.amazonaws.com/testbucket/test.template"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Deny",
+            "Action": [
+                "cloudformation:*"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringLikeIfExists": {
+                    "cloudformation:ResourceTypes": [
+                        "AWS::S3::Edit*"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Deny",
+            "Action": [
+                "cloudformation:CreateStack"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "Null": {
+                    "cloudformation:ResourceTypes": "true"
+                }
+            }
+        },
+        {
+            "Sid": "cf2",
+            "Effect": "Allow",
+            "Action": "cloudformation:*",
+            "Resource": [
+                "arn:aws:cloudformation:us-east-1:acc_number:stack/*",
+                "arn:aws:s3:::*",
+                "arn:aws:logs:us-east-1:acc_number:log-group::log-stream:*",
+                "arn:aws:iam::acc_number:role/*",
+                "arn:aws:apigateway:us-east-1::/*",
+                "arn:aws:lambda:us-east-1:acc_number:function:*",
+                "arn:aws:sns:us-east-1:acc_number:*",
+                "arn:aws:sqs:us-east-1:acc_number:*",
+                "arn:aws:dynamodb:us-east-1:acc_number:table/*"
+            ]
+        }
+    ]
+}

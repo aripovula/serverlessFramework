@@ -3,7 +3,7 @@
 module.exports.hello = async (event, context, callback) => {
 
 const now = new Date();
-const message = `Time now is ${now}`;
+const message = `Time now is ${now} - ${event.pathParameters.name}`;
 
 console.log(message);
 

@@ -1,7 +1,7 @@
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: find-your-match
+service: find-your-match2
 plugins: 
   - serverless-offline
 # You can pin your service to only deploy with a specific Serverless version
@@ -45,15 +45,17 @@ provider:
 functions:
   hello:
     handler: handler.hello
+  # email_forwarder:
+  #   handler: email_forwarder.handler
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
     events:
       # - schedule: cron(45 17 * * ? *)
-      #  - http:
-      #     path: /message/{name}
-      #     method: get
+      - http:
+          path: /message/{name}
+          method: get
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
@@ -91,3 +93,4 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
