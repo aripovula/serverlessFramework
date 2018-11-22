@@ -39,6 +39,20 @@
         {
             "Effect": "Deny",
             "Action": [
+                "*"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringLikeIfExists": {
+                    "cloudformation:ResourceTypes": [
+                        "*production*"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Deny",
+            "Action": [
                 "cloudformation:CreateStack"
             ],
             "Resource": "*",
