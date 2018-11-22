@@ -5,36 +5,7 @@
             "Sid": "cf1",
             "Effect": "Deny",
             "Action": "*",
-            "Resource": "arn:aws:iam::acc_number:policy/CloudFormationMyRules"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "cloudformation:CreateStack",
-                "cloudformation:UpdateStack"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "ForAllValues:StringEquals": {
-                    "cloudformation:TemplateUrl": [
-                        "https://s3.amazonaws.com/testbucket/test.template"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Deny",
-            "Action": [
-                "cloudformation:*"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "ForAnyValue:StringLikeIfExists": {
-                    "cloudformation:ResourceTypes": [
-                        "AWS::S3::Edit*"
-                    ]
-                }
-            }
+            "Resource": "arn:aws:iam::acc_number:policy/CloudFormationMyRules-ProjectFYM2AB3C"
         },
         {
             "Effect": "Deny",
@@ -52,6 +23,19 @@
         },
         {
             "Effect": "Deny",
+            "Action": "*",
+            "Resource": "*",
+            "Condition": {
+                "ForAllValues:StringNotEqualsIgnoreCase": {
+                    "cloudformation:RoleARN": [
+                        "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/for-cloud-formation-stacks/*",
+                        "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/misc/*"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Deny",
             "Action": [
                 "cloudformation:CreateStack"
             ],
@@ -63,19 +47,40 @@
             }
         },
         {
-            "Sid": "cf2",
-            "Effect": "Allow",
-            "Action": "cloudformation:*",
+            "Effect": "Deny",
+            "Action": "*",
             "Resource": [
-                "arn:aws:cloudformation:us-east-1:acc_number:stack/*",
-                "arn:aws:s3:::*",
-                "arn:aws:logs:us-east-1:acc_number:log-group::log-stream:*",
-                "arn:aws:iam::acc_number:role/*",
-                "arn:aws:apigateway:us-east-1::/*",
-                "arn:aws:lambda:us-east-1:acc_number:function:*",
-                "arn:aws:sns:us-east-1:acc_number:*",
-                "arn:aws:sqs:us-east-1:acc_number:*",
-                "arn:aws:dynamodb:us-east-1:acc_number:table/*"
+                "arn:aws:apigateway:us-east-1::/",
+                "arn:aws:apigateway:us-east-1::/account",
+                "arn:aws:apigateway:us-east-1::/clientcertificates",
+                "arn:aws:apigateway:us-east-1::/domainnames",
+                "arn:aws:apigateway:us-east-1::/apikeys"
+            ]
+        },
+        {
+            "Effect": "Deny",
+            "Action": [
+                "cloudformation:*",
+                "s3:*",
+                "logs:*",
+                "iam:*",
+                "apigateway:*",
+                "lambda:*",
+                "dynamodb:*",
+                "sqs:*",
+                "sns:*"
+            ],
+            "NotResource": [
+                "arn:aws:cloudformation:us-east-1:acc_number:stack/dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/misc/*",
+                "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/for-cloud-formation-stacks/*",
+                "arn:aws:logs:us-east-1:acc_number:log-group::log-stream:dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:iam::acc_number:role/dev-stage-role-ProjectFYM2AB3C-*",
+                "arn:aws:apigateway:us-east-1::/restapis/*/dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:lambda:us-east-1:acc_number:function:dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:sns:us-east-1:acc_number:dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:sqs:us-east-1:acc_number:dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:dynamodb:us-east-1:acc_number:table/dev-stage-ProjectFYM2AB3C-*"
             ]
         }
     ]
