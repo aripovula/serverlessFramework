@@ -1,7 +1,7 @@
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: dcfstacks-dfym2c-find-your-match4
+service: dcf-dfym2c-find-your-match4
 # plugins: 
 #   - serverless-offline
 # You can pin your service to only deploy with a specific Serverless version
@@ -85,14 +85,14 @@ provider:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
-    NewResource:
-     Type: AWS::S3::Bucket
-     Properties:
-       BucketName: dcfstacks-dfym2c
+    newBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+       BucketName: dcf-dfym2c-misc
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: dfym2c-usersTable
+        TableName: dcf-dfym2c-usersTable
         AttributeDefinitions:
           - AttributeName: email
             AttributeType: S
