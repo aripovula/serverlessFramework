@@ -2,63 +2,28 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "cf1",
-            "Effect": "Deny",
-            "Action": "*",
-            "Resource": "arn:aws:iam::acc_number:policy/CloudFormationMyRules-ProjectFYM2AB3C"
-        },
-        {
             "Effect": "Deny",
             "Action": [
-                "*"
+                "s3:*",
+                "iam:*",
+                "apigateway:*",
+                "lambda:*",
+                "dynamodb:*",
+                "sqs:*",
+                "sns:*"
             ],
-            "Resource": "*",
-            "Condition": {
-                "ForAnyValue:StringLikeIfExists": {
-                    "cloudformation:ResourceTypes": [
-                        "*production*"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Deny",
-            "Action": "*",
-            "Resource": "*",
-            "Condition": {
-                "ForAllValues:StringNotEqualsIgnoreCase": {
-                    "cloudformation:RoleARN": [
-                        "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/for-cloud-formation-stacks/*",
-                        "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/misc/*"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Deny",
-            "Action": [
-                "cloudformation:CreateStack"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "Null": {
-                    "cloudformation:ResourceTypes": "true"
-                }
-            }
-        },
-        {
-            "Effect": "Deny",
-            "Action": "*",
-            "Resource": [
-                "arn:aws:apigateway:us-east-1::/",
-                "arn:aws:apigateway:us-east-1::/account",
-                "arn:aws:apigateway:us-east-1::/clientcertificates",
-                "arn:aws:apigateway:us-east-1::/domainnames",
-                "arn:aws:apigateway:us-east-1::/apikeys"
+            "NotResource": [
+                "arn:aws:s3:::dcf-dfym2c-*",
+                "arn:aws:iam::520649825970:role/dcf-dfym2c-*",
+                "arn:aws:apigateway:us-east-1::/restapis/*/dcf-*",
+                "arn:aws:lambda:us-east-1:520649825970:function:dcf-dfym2c-*",
+                "arn:aws:sns:us-east-1:520649825970:dcf-dfym2c-*",
+                "arn:aws:sqs:us-east-1:520649825970:dcf-dfym2c-*",
+                "arn:aws:dynamodb:us-east-1:520649825970:table/dcf-dfym2c-*"
             ]
         },
         {
-            "Effect": "Deny",
+            "Effect": "Allow",
             "Action": [
                 "cloudformation:*",
                 "s3:*",
@@ -70,19 +35,7 @@
                 "sqs:*",
                 "sns:*"
             ],
-            "NotResource": [
-                "arn:aws:cloudformation:us-east-1:acc_number:stack/dev-stage-ProjectFYM2AB3C-*",
-                "arn:aws:cloudformation:us-east-1:520649825970:stack/dfym2c-find-your-match2-dev/*",
-                "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/misc/*",
-                "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/for-cloud-formation-stacks/*",
-                "arn:aws:logs:us-east-1:acc_number:log-group::log-stream:dev-stage-ProjectFYM2AB3C-*",
-                "arn:aws:iam::acc_number:role/dev-stage-role-ProjectFYM2AB3C-*",
-                "arn:aws:apigateway:us-east-1::/restapis/*/dev-stage-ProjectFYM2AB3C-*",
-                "arn:aws:lambda:us-east-1:acc_number:function:dev-stage-ProjectFYM2AB3C-*",
-                "arn:aws:sns:us-east-1:acc_number:dev-stage-ProjectFYM2AB3C-*",
-                "arn:aws:sqs:us-east-1:acc_number:dev-stage-ProjectFYM2AB3C-*",
-                "arn:aws:dynamodb:us-east-1:acc_number:table/dev-stage-ProjectFYM2AB3C-*"
-            ]
+            "Resource": "*"
         }
     ]
 }
