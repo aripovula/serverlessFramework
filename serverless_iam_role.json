@@ -72,6 +72,7 @@
             ],
             "NotResource": [
                 "arn:aws:cloudformation:us-east-1:acc_number:stack/dev-stage-ProjectFYM2AB3C-*",
+                "arn:aws:cloudformation:us-east-1:520649825970:stack/dfym2c-find-your-match2-dev/*",
                 "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/misc/*",
                 "arn:aws:s3:::dev-stage-ProjectFYM2AB3C/for-cloud-formation-stacks/*",
                 "arn:aws:logs:us-east-1:acc_number:log-group::log-stream:dev-stage-ProjectFYM2AB3C-*",

@@ -1,9 +1,9 @@
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: find-your-match2
-plugins: 
-  - serverless-offline
+service: dcfstacks-dfym2c-find-your-match4
+# plugins: 
+#   - serverless-offline
 # You can pin your service to only deploy with a specific Serverless version
 # frameworkVersion: "=X.X.X"
 
@@ -42,20 +42,20 @@ provider:
 #    - exclude-me.js
 #    - exclude-me-dir/**
 
-functions:
-  hello:
-    handler: handler.hello
+# functions:
+#   dfym2c-hello:
+#     handler: handler.hello
   # email_forwarder:
   #   handler: email_forwarder.handler
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-    events:
-      # - schedule: cron(45 17 * * ? *)
-      - http:
-          path: /message/{name}
-          method: get
+    # events:
+    #   # - schedule: cron(45 17 * * ? *)
+    #   - http:
+    #       path: /message/{name}
+    #       method: get
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
@@ -83,12 +83,25 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
+resources:
+  Resources:
+    NewResource:
+     Type: AWS::S3::Bucket
+     Properties:
+       BucketName: dcfstacks-dfym2c
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: dfym2c-usersTable
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
