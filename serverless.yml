@@ -11,7 +11,13 @@ provider:
   name: aws
   runtime: nodejs8.10
   stage: dev
+  stageAbbr: d
+  pr_prefix: ${self:provider.stageAbbr}cf-${self:provider.stageAbbr}fym2c #d-dev stage, cf - for cloudFormation, dfym2c - project code at dev stage
   region: us-east-1
+  # environment:
+  #   pr_prefix: "dcf-dfym2c"
+    # pr_prefix-: dcf-dfym2c-
+    # TABLE_NAME: tableName1
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -43,19 +49,19 @@ provider:
 #    - exclude-me-dir/**
 
 # functions:
-#   dfym2c-hello:
+#   dcf-dfym2c-hello:
 #     handler: handler.hello
-  # email_forwarder:
-  #   handler: email_forwarder.handler
+#   dcf-dfym2c-email_forwarder:
+#     handler: email_forwarder.handler
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
     # events:
     #   # - schedule: cron(45 17 * * ? *)
-    #   - http:
-    #       path: /message/{name}
-    #       method: get
+      # - http:
+      #     path: dcf-dfym2c/message/{name}
+      #     method: get
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
@@ -88,11 +94,11 @@ resources:
     newBucket:
       Type: AWS::S3::Bucket
       Properties:
-       BucketName: dcf-dfym2c-misc
+       BucketName: ${self:provider.pr_prefix}-misc
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: dcf-dfym2c-usersTable
+        TableName: ${self:provider.pr_prefix}-usersTable
         AttributeDefinitions:
           - AttributeName: email
             AttributeType: S
