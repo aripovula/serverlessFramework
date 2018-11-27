@@ -2,8 +2,8 @@
 #    docs.serverless.com
 
 service: dcf-dfym2c-find-your-match4
-# plugins: 
-#   - serverless-offline
+plugins: 
+  - serverless-offline
 # You can pin your service to only deploy with a specific Serverless version
 # frameworkVersion: "=X.X.X"
 
@@ -49,9 +49,9 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-#   dcf-dfym2c-hello:
+#   ${self:provider.pr_prefix}-hello:
 #     handler: handler.hello
-  dcf-dfym2c-email_forwarder:
+  ${self:provider.pr_prefix}-email_forwarder:
     handler: email_forwarder.handler
 
 #    The following are a few example events you can configure
