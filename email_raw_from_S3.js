@@ -1,13 +1,15 @@
 const AWS = require('aws-sdk');
-var s3 = new AWS.S3();
+const s3 = new AWS.S3();
 
+console.log('in S3LmdaFwd');
 const forwardFrom = "ulugbek@aripov.info";
 const forwardTo = "ulugbeks@gmail.com";
 
 exports.handler = function (event, context, callback) {
 
-  var src_bkt = event.Records[0].s3.bucket.name;
-  var src_key = event.Records[0].s3.object.key;
+  console.log('in S3LmdaFwd');
+  const src_bkt = event.Records[0].s3.bucket.name;
+  const src_key = event.Records[0].s3.object.key;
 
   s3.getObject({
     Bucket: src_bkt,
@@ -17,29 +19,32 @@ exports.handler = function (event, context, callback) {
       console.log(err, err.stack);
       callback(err);
     } else {
-      const msgBody = data.Body.toString('ascii');
-      console.log("Raw text:\n" + msgBody);
+      // const msgBody = data.Body.toString('ascii');
+      // console.log("Raw text:\n" + msgBody);
 
-      var msgInfo = JSON.parse(msgBody);
+      const msgInfo = data.Body.toString('ascii');
       console.log("msgInfo json:\n" + msgInfo);
 
-      if (msgInfo.receipt.spamVerdict.status === 'FAIL' || msgInfo.receipt.virusVerdict.status === 'FAIL') {
+      if (msgInfo.includes('X-SES-Spam-Verdict: PASS') && msgInfo.includes('X-SES-Virus-Verdict: PASS')) {
 
-        var email = msgInfo;
+        let email = msgInfo;
         let headers = "From: " + forwardFrom + "\r\n";
         headers += "Reply-To: " + forwardFrom + "\r\n";
         headers += "X-Original-To: " + forwardTo + "\r\n";
         headers += "To: " + forwardTo + "\r\n";
         headers += "Subject: NEW: Fwd from S3 \r\n";
 
-
+        email = headers + "\r\n" + email;
 
         new AWS.SES().sendRawEmail({
           RawMessage: {
             Data: email
           }
         }, function (err, data) {
-          if (err) context.fail(err);
+          if (err) {
+            console.log('error', err);
+            context.fail(err);
+          }
           else {
             console.log('Sent with MessageId: ' + data.MessageId);
             context.succeed();
