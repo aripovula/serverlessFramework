@@ -38,8 +38,9 @@ Resources:
           - Arn
       Timeout: 30
       Code:
-        ZipFile: !Sub |
-          let AWS = require('aws-sdk');
+        # UNCOMMENT BELOW - shows error but will work
+        # ZipFile: !Sub |
+        #   let AWS = require('aws-sdk');
           exports.handler = function(event, context, callback) {
               callback(null, 'abc');
           }

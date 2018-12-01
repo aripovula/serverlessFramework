@@ -48,20 +48,15 @@ provider:
 #    - exclude-me.js
 #    - exclude-me-dir/**
 
-# functions:
+functions:
 #   dcf-dfym2c-hello:
-#     code: 
-#       "ZipFile: !Sub |
-#       const AWS = require('aws-sdk');
-
-#         exports.handler = function (event, context, callback) {
-
-#           callback(null, 'abc');
-# }"
-#     handler: handler.handler
-    # role: arn:aws:iam::520649825970:role/LambdaStandardRole
+#     handler: hello.handler
+#     role: arn:aws:iam::520649825970:role/LambdaStandardRole
 #   dcf-dfym2c-email_forwarder:
 #     handler: email_forwarder.handler
+  dcf-dfym2c-FYM-post:
+    handler: find-the-match.handler  #POST
+    role: dcfDfym2cFymPostRole
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -100,74 +95,67 @@ provider:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
-    SESEmailForwardRole:
+    dcfDfym2cFymPostRole:
       Type: AWS::IAM::Role
       Properties:
+        RoleName: dcfDfym2cFymPostRole
         AssumeRolePolicyDocument:
           Version: '2012-10-17'
           Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-              - lambda.amazonaws.com
-            Action:
-            - sts:AssumeRole
-        Path: "/"
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
         Policies:
-        - PolicyName: SESEmailForward
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-            - Effect: Allow
-              Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-              Resource: arn:aws:logs:*:*:*
-            - Effect: Allow
-              Action:
-              - ses:SendEmail
-              - ses:SendRawEmail
-              Resource: "*"
-    SESEmailForwardFunction:
-      Type: AWS::Lambda::Function
-      Properties:
-        Handler: index.handler
-        Role:
-          Fn::GetAtt: [ SESEmailForwardRole, Arn]
-        Timeout: 30
-        Code:
-          ZipFile: !Sub |
-            let AWS = require('aws-sdk');
-            exports.handler = function(event, context, callback) {
-                callback(null, 'abc');
-            }
-        Runtime: nodejs4.3
+          - PolicyName: dcfDfym2cFymPost
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: 
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'log-group:/aws/lambda/*:*:*'
+                - Effect: Allow
+                  Action:
+                    - dynamodb:PutItem
+                  Resource: 
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:dynamodb'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'table/dcf-dfym2c-usersTable'
+
     
 #     newBucket:
 #       Type: AWS::S3::Bucket
 #       Properties:
 #        BucketName: dcf-dfym2c-misc
-#     usersTable:
-#       Type: AWS::DynamoDB::Table
-#       Properties:
-#         TableName: dcf-dfym2c-usersTable
-#         AttributeDefinitions:
-#           - AttributeName: UserID
-#             AttributeType: S
-#           - AttributeName: gender
-#             AttributeType: S
-#           - AttributeName: interests
-#             AttributeType: S
-#           - AttributeName: name
-#             AttributeType: S
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: dcf-dfym2c-usersTable
+        AttributeDefinitions:
+          - AttributeName: UserID
+            AttributeType: S
 
-#         KeySchema:
-#           - AttributeName: UserID
-#             KeyType: HASH
-#         ProvisionedThroughput:
-#           ReadCapacityUnits: 1
-#           WriteCapacityUnits: 1
+        KeySchema:
+          - AttributeName: UserID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 #     fymAPI:
 #       Type: 'AWS::ApiGateway::RestApi'
 #       Properties:
