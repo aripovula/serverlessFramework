@@ -137,12 +137,11 @@ resources:
           Fn::GetAtt: [ SESEmailForwardRole, Arn]
         Timeout: 30
         Code:
-          "
-            var AWS = require('aws-sdk');
+          ZipFile: !Sub |
+            let AWS = require('aws-sdk');
             exports.handler = function(event, context, callback) {
-
                 callback(null, 'abc');
-            }"
+            }
         Runtime: nodejs4.3
     
 #     newBucket:
