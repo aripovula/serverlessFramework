@@ -1,5 +1,6 @@
+console.log('start-post');
 const AWS = require('aws-sdk');
-const dynamodb = new AWS.DynamoDB({ region: 'us-east-2', apiVersion: '2012-08-10' });
+const dynamodb = new AWS.DynamoDB({ region: 'us-east-1', apiVersion: '2012-08-10' });
 const cisp = new AWS.CognitoIdentityServiceProvider({ apiVersion: '2016-04-18' });
 
 exports.handler = (event, context, callback) => {
@@ -44,7 +45,7 @@ exports.handler = (event, context, callback) => {
                     }
                 },
 
-                TableName: "find-your-match"
+                TableName: "dcf-dfym2c-usersTable"
             };
 
             dynamodb.putItem(params, function (err, data) {
