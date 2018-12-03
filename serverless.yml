@@ -103,16 +103,69 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
-    # dcfDfym2cFymApiGToInvokeLambda:
-    #   Type: "AWS::Lambda::Permission"
-    #   DependsOn:
-    #   - FYMapi
-    #   - FYMDashpostLambdaFunction
+    # dcfDfym2cLambdaInvokePost:
+    #   Type: AWS::Lambda::Permission
     #   Properties:
-    #     Action: lambda:InvokeFunction
-    #     FunctionName: 
-    #       Ref: FYMDashpostLambdaFunction
-    #     Principal: apigateway.amazonaws.com
+    #     FunctionName:
+    #       'Fn::GetAtt':
+    #       - FYMDashpostLambdaFunction
+    #       - Arn
+    #     Action: 'lambda:InvokeFunction'
+    #     Principal: 'apigateway.amazonaws.com'
+    #     SourceArn:
+    #       'Fn::Join':
+    #       - ''
+    #       -
+    #         - 'arn:aws:execute-api:'
+    #         - Ref: 'AWS::Region'
+    #         - ':'
+    #         - Ref: 'AWS::AccountId'
+    #         - ':'
+    #         - Ref: 'FYMapi'
+    #         - '/*/POST/find-your-match'
+    # dcfDfym2cLambdaInvokeDelete:
+    #   Type: AWS::Lambda::Permission
+    #   Properties:
+    #     FunctionName:
+    #       'Fn::GetAtt':
+    #       - FYMDashdeleteLambdaFunction
+    #       - Arn
+    #     Action: 'lambda:InvokeFunction'
+    #     Principal: 'apigateway.amazonaws.com'
+    #     SourceArn:
+    #       'Fn::Join':
+    #       - ''
+    #       -
+    #         - 'arn:aws:execute-api:'
+    #         - Ref: 'AWS::Region'
+    #         - ':'
+    #         - Ref: 'AWS::AccountId'
+    #         - ':'
+    #         - Ref: 'FYMapi'
+    #         - '/*/DELETE/find-your-match'
+    # dcfDfym2cLambdaInvokeGet:
+    #   Type: AWS::Lambda::Permission
+    #   Properties:
+    #     FunctionName:
+    #       'Fn::GetAtt':
+    #       - FYMDashgetLambdaFunction
+    #       - Arn
+    #     Action: 'lambda:InvokeFunction'
+    #     Principal: 'apigateway.amazonaws.com'
+    #     SourceArn:
+    #       'Fn::Join':
+    #       - ''
+    #       -
+    #         - 'arn:aws:execute-api:'
+    #         - Ref: 'AWS::Region'
+    #         - ':'
+    #         - Ref: 'AWS::AccountId'
+    #         - ':'
+    #         - Ref: 'FYMapi'
+    #         - '/*/GET/find-your-match'
+
+    #         # arn:aws:execute-api:us-east-2:520649825970:936e6uzs1i/*/POST/
+    #         # arn:aws:execute-api:us-east-1:520649825970:9zikrft4kj/*/DELETE/find-your-match
 
     dcfDfym2cFymPostRole:
       Type: AWS::IAM::Role
@@ -322,6 +375,13 @@ resources:
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
                   type: "aws"
+                  # credentials : 
+                  #   'Fn::Join':
+                  #   - ''
+                  #   -
+                  #     - 'arn:aws:iam::'
+                  #     - Ref: 'AWS::AccountId'
+                  #     - ':role/lambda_invoke_function_assume_apigw_role'
               delete:
                 consumes:
                 - "application/json"
@@ -363,6 +423,13 @@ resources:
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
                   type: "aws"
+                  # credentials:
+                  #   'Fn::Join':
+                  #   - ''
+                  #   -
+                  #     - 'arn:aws:iam::'
+                  #     - Ref: 'FYMapi'
+                  #     - ':role/dcfDfym2cLambdaInvoke'
               options:
                 consumes:
                 - "application/json"
