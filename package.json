@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "serverless-offline": "^3.31.3"
+  },
+  "dependencies": {
+    "uuid": "^3.3.2"
   }
 }
