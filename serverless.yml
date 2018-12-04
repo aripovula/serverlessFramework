@@ -76,19 +76,27 @@ functions:
           - Ref: 'AWS::Region'
           - '.amazonaws.com/'
           - Ref: 'AWS::AccountId'
-          - '/dcf-dfym2c-TextToSpeechQueue'
+          - '/dcfDfym2cTextToSpeechQueue'
   FYMgetMessage:
     handler: fymGetMessage.handler
     role: dcfDfym2cFymAddMessageRole
     environment: 
       DB_TABLE_NAME: dcf-dfym2c-pollyTable
 
-  FYMconvertMessageToAudio:
+  dcfDfym2cFYMconvertMessageToAudio:
     handler: fymConvertMessageToAudio.handler
     role: dcfDfym2cFymAddMessageRole
     environment: 
       BUCKET_NAME: dcf-dfym2c-polly
       DB_TABLE_NAME: dcf-dfym2c-pollyTable
+    events:
+      - sqs:
+          batchSize: 1
+          enabled: true
+          arn: 
+            'Fn::GetAtt':
+            - 'dcfDfym2cTextToSpeechQueue'
+            - 'Arn'
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -127,6 +135,7 @@ functions:
 # you can add CloudFormation resource templates here
 resources:
   Resources:
+    # Roles to invoke Lambda functions from APIGateway
     # dcfDfym2cLambdaInvokePost:
     #   Type: AWS::Lambda::Permission
     #   Properties:
@@ -191,6 +200,7 @@ resources:
     #         # arn:aws:execute-api:us-east-2:520649825970:936e6uzs1i/*/POST/
     #         # arn:aws:execute-api:us-east-1:520649825970:9zikrft4kj/*/DELETE/find-your-match
 
+    # Lambda roles
     dcfDfym2cFymPostRole:
       Type: AWS::IAM::Role
       Properties:
@@ -396,12 +406,12 @@ resources:
                     #     - Ref: 'AWS::Region'
                     #     - Ref: 'AWS::AccountId'
                     #     - 'table/dcf-dfym2c-pollyTable'   
-    TextToSpeechQueue:
+    dcfDfym2cTextToSpeechQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: 'dcf-dfym2c-TextToSpeechQueue'
+        QueueName: 'dcfDfym2cTextToSpeechQueue'
 
-    # SWAGGER API DEFINITION
+    # API DEFINITION using SWAGGER
     FYMapi:
       Type: 'AWS::ApiGateway::RestApi'
       Properties:
@@ -411,9 +421,8 @@ resources:
           swagger: "2.0"
           info:
             version: "2018-11-15T18:34:04Z"
-            title: "find-your-match"
-          # host: "edv8edmxxj.execute-api.us-east-1.amazonaws.com"     ####
-          # host: "vg0r6otvsg.execute-api.us-east-1.amazonaws.com"
+            title: "FYMapi"
+          # host: "dp0o1qdubl.execute-api.us-east-1.amazonaws.com"
           basePath: "/development"
           schemes:
           - "https"
@@ -465,13 +474,6 @@ resources:
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
                   type: "aws"
-                  # credentials : 
-                  #   'Fn::Join':
-                  #   - ''
-                  #   -
-                  #     - 'arn:aws:iam::'
-                  #     - Ref: 'AWS::AccountId'
-                  #     - ':role/lambda_invoke_function_assume_apigw_role'
               delete:
                 consumes:
                 - "application/json"
@@ -513,13 +515,6 @@ resources:
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
                   type: "aws"
-                  # credentials:
-                  #   'Fn::Join':
-                  #   - ''
-                  #   -
-                  #     - 'arn:aws:iam::'
-                  #     - Ref: 'FYMapi'
-                  #     - ':role/dcfDfym2cLambdaInvoke'
               options:
                 consumes:
                 - "application/json"
@@ -636,12 +631,17 @@ resources:
                     description: "200 response"
                     schema:
                       $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
                 x-amazon-apigateway-integration:
                   credentials: "arn:aws:iam::520649825970:role/APIGatewayToStepFunctions"
                   uri: "arn:aws:apigateway:us-east-1:states:action/StartExecution"
                   responses:
                     default:
                       statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
                   requestTemplates:
                     application/json: "## #set($inputRoot = $input.path('$')) {\n##     \"a\"\
                       \ : \"$inputRoot.a\",\n##     \"b\" : \"$inputRoot.b\",\n\n{\n    \"input\"\
@@ -673,8 +673,119 @@ resources:
                     default:
                       statusCode: "200"
                       responseParameters:
-                        method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
-                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                        method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
+                  requestTemplates:
+                    application/json: "{\"statusCode\": 200}"
+                  passthroughBehavior: "when_no_match"
+                  type: "mock"
+            /start-relations/audio:
+              options:
+                consumes:
+                - "application/json"
+                produces:
+                - "application/json"
+                responses:
+                  '200':
+                    description: "200 response"
+                    schema:
+                      $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
+                      Access-Control-Allow-Methods:
+                        type: "string"
+                      Access-Control-Allow-Headers:
+                        type: "string"
+                x-amazon-apigateway-integration:
+                  responses:
+                    default:
+                      statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Methods: "'OPTIONS'"
+                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
+                  requestTemplates:
+                    application/json: "{\"statusCode\": 200}"
+                  passthroughBehavior: "when_no_match"
+                  type: "mock"
+            /start-relations/audio/{type}:
+              get:
+                consumes:
+                - "application/json"
+                produces:
+                - "application/json"
+                parameters:
+                - name: "requestorID"
+                  in: "query"
+                  required: true
+                  type: "string"
+                - name: "type"
+                  in: "path"
+                  required: true
+                  type: "string"
+                - name: "accessToken"
+                  in: "query"
+                  required: true
+                  type: "string"
+                - name: "candidateID"
+                  in: "query"
+                  required: true
+                  type: "string"
+                responses:
+                  '200':
+                    description: "200 response"
+                    schema:
+                      $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
+                security:
+                - FYM-Cognito-cognito-authorizer: []
+                x-amazon-apigateway-request-validator: "Validate query string parameters and\
+                  \ headers"
+                x-amazon-apigateway-integration:
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:520649825970:function:dcf-dfym2c-dev-FYMgetMessage/invocations"
+                  responses:
+                    default:
+                      statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
+                  requestTemplates:
+                    application/json: "{\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
+                      ,\n    \"type\": \"$util.escapeJavaScript($input.params('type'))\",\n\
+                      \    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
+                      ,\n    \"requestorID\": \"$util.escapeJavaScript($input.params('requestorID'))\"\
+                      \n\n}"
+                  passthroughBehavior: "when_no_templates"
+                  httpMethod: "POST"
+                  contentHandling: "CONVERT_TO_TEXT"
+                  type: "aws"
+              options:
+                consumes:
+                - "application/json"
+                produces:
+                - "application/json"
+                responses:
+                  '200':
+                    description: "200 response"
+                    schema:
+                      $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
+                      Access-Control-Allow-Methods:
+                        type: "string"
+                      Access-Control-Allow-Headers:
+                        type: "string"
+                x-amazon-apigateway-integration:
+                  responses:
+                    default:
+                      statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                         method.response.header.Access-Control-Allow-Origin: "'*'"
                   requestTemplates:
                     application/json: "{\"statusCode\": 200}"
@@ -697,11 +808,11 @@ resources:
             candidate:
               type: "object"
               properties:
-                id:
+                gender:
                   type: "string"
                 name:
                   type: "string"
-                gender:
+                id:
                   type: "string"
                 interests:
                   type: "string"
