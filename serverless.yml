@@ -97,6 +97,16 @@ functions:
             'Fn::GetAtt':
             - 'dcfDfym2cTextToSpeechQueue'
             - 'Arn'
+  FYMimageAnalysis:
+    handler: fymImageAnalysis.handler
+    role: dcfDfym2cFymAddMessageRole
+    environment: 
+      BUCKET_NAME: dcf-dfym2c-rekognition
+  FYMimageUploadFromURL:
+    handler: fymUrlToS3.handler
+    role: dcfDfym2cFymAddMessageRole
+    environment: 
+      BUCKET_NAME: dcf-dfym2c-rekognition
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -398,6 +408,7 @@ resources:
                     - s3:*
                     - sqs:*
                     - polly:*
+                    - rekognition:*
                   Resource: '*'
                     # - 'Fn::Join':
                     #   - ':'
@@ -410,6 +421,14 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: 'dcfDfym2cTextToSpeechQueue'
+    
+    # REKOGNITION
+
+    rekognitionBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+       BucketName: dcf-dfym2c-rekognition
+
 
     # API DEFINITION using SWAGGER
     FYMapi:
