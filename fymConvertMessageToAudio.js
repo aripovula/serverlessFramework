@@ -77,32 +77,38 @@ exports.handler = (event, context, callback) => {
 
     docClient.get(params, (err, data) => {
         if (err) {
-            context.succeed({ success: false, error: err });
+            // context.succeed({ success: false, error: err });
+            callback(err);
         } else {
             console.log('Converting Text', data.Item.text, 'to voice', data.Item.voice);
 
             convertTextToVoice(data.Item, (err, data) => {
                 if (err) {
-                    context.succeed({ success: false, error: err });
+                    // context.succeed({ success: false, error: err });
+                    callback(err);
                 } else {
                     if (data.AudioStream instanceof Buffer) {
                         const filePath = "/tmp/" + postId + ".mp3";
 
                         Fs.writeFile(filePath, data.AudioStream, function (err) {
                             if (err) {
-                                context.succeed({ success: false, error: err });
+                                // context.succeed({ success: false, error: err });
+                                callback(err);
                             } else {
                                 console.log('File ready to upload', filePath);
 
                                 saveToS3(postId, filePath, (err, data) => {
                                     if (err) {
-                                        context.succeed({ success: false, error: err });
+                                        // context.succeed({ success: false, error: err });
+                                        callback(err);
                                     } else {
                                         updateRecord(postId, 'READY', data.Location, (err, data) => {
                                             if (err) {
-                                                context.succeed({ success: false, error: err });
+                                                // context.succeed({ success: false, error: err });
+                                                callback(err);
                                             } else {
-                                                context.succeed({ success: true, data: data });
+                                                // context.succeed({ success: true, data: data });
+                                                callback(null, data);
                                             }
                                         })
                                     }

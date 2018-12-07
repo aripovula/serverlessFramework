@@ -19,16 +19,19 @@ exports.handler = (event, context, callback) => {
 
     docClient.put(params, (err, data) => {
         if (err) {
-            context.succeed({ success: false, error: err });
+            // context.succeed({ success: false, error: err });
+            callback(err);
         } else {
             sqs.sendMessage({
                 MessageBody: record.id,
                 QueueUrl: process.env.QUEUE_URL
             }, (err, data) => {
                 if (err) {
-                    context.succeed({ success: false, error: err });
+                    // context.succeed({ success: false, error: err });
+                    callback(err);
                 } else {
-                    context.succeed({ success: true, data: record });
+                    // context.succeed({ success: true, data: record });
+                    callback(null, record);
                 }
             });
         }

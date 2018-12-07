@@ -447,7 +447,7 @@ resources:
           info:
             version: "2018-11-15T18:34:04Z"
             title: "FYMapi"
-          # host: "fsmr6o22e8.execute-api.us-east-1.amazonaws.com"
+          host: "aqlvssolpl.execute-api.us-east-1.amazonaws.com"
           basePath: "/development"
           schemes:
           - "https"
@@ -840,21 +840,27 @@ resources:
                     description: "200 response"
                     schema:
                       $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
                 security:
                 - FYM-Cognito-cognito-authorizer: []
                 x-amazon-apigateway-request-validator: "Validate query string parameters and\
                   \ headers"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:520649825970:function:dcf-dfym2c-dev-FYMimageAnalysis/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:520649825970:function:dcf-dfym2c-dev-FYMimageUploadFromURL/invocations"
                   responses:
                     default:
                       statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
                   requestTemplates:
                     application/json: "{\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
                       ,\n    \"type\": \"$util.escapeJavaScript($input.params('type'))\",\n\
                       \    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
                       ,\n    \"requestorID\": \"$util.escapeJavaScript($input.params('requestorID'))\"\
-                      \n\n}"
+                      ,\n    \"imageUrl\": \"$util.escapeJavaScript($input.params('imageUrl'))\"\
+                      \n}"
                   passthroughBehavior: "when_no_templates"
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
@@ -869,15 +875,14 @@ resources:
                   in: "query"
                   required: true
                   type: "string"
-                - name: "image"
-                  in: "query"
-                  required: true
-                  type: "string"
                 responses:
                   '200':
                     description: "200 response"
                     schema:
                       $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
                 security:
                 - FYM-Cognito-cognito-authorizer: []
                 x-amazon-apigateway-request-validator: "Validate body"
@@ -886,10 +891,11 @@ resources:
                   responses:
                     default:
                       statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
                   requestTemplates:
-                    application/json: "{\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
-                      ,\n    \"image\": \"$util.escapeJavaScript($input.params('image'))\"\n\
-                      \n}"
+                    application/json: "{\n    \"image\": $input.json('$'),\n    \"accessToken\"\
+                      : \"$util.escapeJavaScript($input.params('accessToken'))\"\n\n}"
                   passthroughBehavior: "when_no_templates"
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
@@ -916,8 +922,8 @@ resources:
                     default:
                       statusCode: "200"
                       responseParameters:
-                        method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
-                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                        method.response.header.Access-Control-Allow-Methods: "'POST,GET,OPTIONS'"
+                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                         method.response.header.Access-Control-Allow-Origin: "'*'"
                   requestTemplates:
                     application/json: "{\"statusCode\": 200}"

@@ -10,9 +10,11 @@ exports.handler = (event, context, callback) => {
     if (!event.noteId || event.noteId === '') {
         docClient.scan(params, (err, data) => {
             if (err) {
-                context.succeed({ success: false, error: err });
+                // context.succeed({ success: false, error: err });
+                callback(err);
             } else {
-                context.succeed({ success: true, data: data.Items });
+                // context.succeed({ success: true, data: data.Items });
+                callback(null, data.Items);
             }
         });
     } else {
@@ -21,9 +23,11 @@ exports.handler = (event, context, callback) => {
         };
         docClient.get(params, (err, data) => {
             if (err) {
-                context.succeed({ success: false, error: err });
+                // context.succeed({ success: false, error: err });
+                callback(err);
             } else {
-                context.succeed({ success: true, data: data.Item });
+                // context.succeed({ success: true, data: data.Item });
+                callback(null, data.Item);
             }
         });
     }

@@ -43,17 +43,21 @@ exports.handler = function (event, context, callback) {
         }, function (err, data) {
           if (err) {
             console.log('error', err);
-            context.fail(err);
+            // context.fail(err);
+            callback(err);
           }
           else {
             console.log('Sent with MessageId: ' + data.MessageId);
-            context.succeed();
+            // context.succeed();
+            callback(null, data.MessageId);
           }
         });
         callback(null, null);
       } else {
         console.log('Message is spam or contains virus, ignoring.');
-        context.succeed();
+        //context.succeed();
+        callback(null, data.MessageId);
+        
       }
     }
   });
