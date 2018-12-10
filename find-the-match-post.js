@@ -4,6 +4,7 @@ const dynamodb = new AWS.DynamoDB({ region: 'us-east-1', apiVersion: '2012-08-10
 const cisp = new AWS.CognitoIdentityServiceProvider({ apiVersion: '2016-04-18' });
 
 exports.handler = (event, context, callback) => {
+    console.log('event', event);
     const accessToken = event.accessToken;
     const cispParams = {
         "AccessToken": accessToken
@@ -14,16 +15,13 @@ exports.handler = (event, context, callback) => {
             console.log(err);
             callback(err);
         } else {
-
             const id = event.id;
-            const name = event.name;
-            const gender = event.gender;
-            const interests = event.interests;
+            const userName = event.userName;
+            const otherDetails = event.otherDetails;
             console.log('event', event);
             console.log('id', id);
-            console.log('name', name);
-            console.log('gender', gender);
-            console.log('interests', interests);
+            console.log('userName', userName);
+            console.log('otherDetails', otherDetails);
             console.log('AWS', AWS === null);
             console.log('dynamodb', dynamodb === null);
 
@@ -34,14 +32,11 @@ exports.handler = (event, context, callback) => {
                     "UserID": {
                         S: id
                     },
-                    "name": {
-                        S: name
+                    "userName": {
+                        S: userName
                     },
-                    "gender": {
-                        S: gender
-                    },
-                    "interests": {
-                        S: interests
+                    "otherDetails": {
+                        S: otherDetails
                     }
                 },
 

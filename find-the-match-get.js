@@ -34,9 +34,8 @@ exports.handler = (event, context, callback) => {
                         data.Items.map((item) => {
                             let JsObjectItem = {
                                 id: "" + item.UserID.S,
-                                name: "" + item.name.S,
-                                gender: "" + item.gender.S,
-                                interests: "" + item.interests.S
+                                userName: "" + item.userName.S,
+                                otherDetails: "" + item.otherDetails.S
                             };
                             // if (JsObjectItem.gender === 'female' && JsObjectItem.interests.includes('design')) {
                             dataAsJsObject.push(JsObjectItem);
@@ -67,9 +66,8 @@ exports.handler = (event, context, callback) => {
 
                         callback(null, {
                             id: "" + data.Item.UserID.S,
-                            name: "" + data.Item.name.S,
-                            gender: "" + data.Item.gender.S,
-                            interests: "" + data.Item.interests.S
+                            userName: "" + data.Item.userName.S,
+                            otherDetails: "" + data.Item.otherDetails.S
                         });
                     }
                 });

@@ -4,7 +4,7 @@ const cisp = new AWS.CognitoIdentityServiceProvider({ apiVersion: '2016-04-18' }
 
 module.exports.handler = (event, context, callback) => {
     console.log('event = ', event);
-    let image = JSON.parse(event.image.image);
+
     const accessToken = event.accessToken;
 
     const cispParams = {
@@ -16,6 +16,7 @@ module.exports.handler = (event, context, callback) => {
             console.log(err);
             callback(err);
         } else {
+            let image = JSON.parse(event.image.image);
             if (image == null) {
                 console.log("failed to get image");
             } else {

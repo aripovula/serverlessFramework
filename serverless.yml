@@ -447,7 +447,7 @@ resources:
           info:
             version: "2018-11-15T18:34:04Z"
             title: "FYMapi"
-          host: "aqlvssolpl.execute-api.us-east-1.amazonaws.com"
+          host: "62zvlk9vrc.execute-api.us-east-1.amazonaws.com"
           basePath: "/development"
           schemes:
           - "https"
@@ -488,13 +488,9 @@ resources:
                         method.response.header.Access-Control-Allow-Origin: "'*'"
                   requestTemplates:
                     application/json: "#set($inputRoot = $input.path('$'))\n\n{\n    \"id\"\
-                      \ : \"$inputRoot.candidate.id\",\n    ## \"id\" : \"$context.authorizer.claims.sub\"\
-                      ,\n    \"name\" : \"$inputRoot.candidate.name\",\n    ## \"name\" : \"\
-                      $context.authorizer.claims.name\"\n    \"interests\" : \"$inputRoot.candidate.interests\"\
-                      ,\n    ## \"interests\" : \"$context.authorizer.claims.interests\"\n \
-                      \   \"gender\" : \"$inputRoot.candidate.gender\",\n    ## \"gender\" :\
-                      \ \"$context.authorizer.claims.gender\",\n    \"accessToken\" : \"$input.params('accessToken')\"\
-                      \n}"
+                      \ : \"$inputRoot.candidate.id\",\n    \"userName\" : \"$inputRoot.candidate.userName\"\
+                      ,\n    \"otherDetails\" : \"$inputRoot.candidate.otherDetails\",\n   \
+                      \ \"accessToken\" : \"$input.params('accessToken')\"\n}\n"
                   passthroughBehavior: "when_no_templates"
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
@@ -946,13 +942,11 @@ resources:
             candidate:
               type: "object"
               properties:
-                gender:
-                  type: "string"
-                name:
+                userName:
                   type: "string"
                 id:
                   type: "string"
-                interests:
+                otherDetails:
                   type: "string"
               title: "candidate"
           x-amazon-apigateway-request-validators:
