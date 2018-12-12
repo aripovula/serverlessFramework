@@ -60,6 +60,9 @@ const getImageDescription = function (fileName, callback) {
                 return getCelebrityInfo(fileName, data);
             })
             .then((data) => {
+                return getCompareFaceInfo(fileName, data);
+            })
+            .then((data) => {
                 const response = {
                     statusCode: 200,
                     body: JSON.stringify({
@@ -157,6 +160,43 @@ const getCelebrityInfo = function (fileName, prevData) {
                 labelsData: prevData.labelsData,
                 faceData: prevData.faceData,
                 celebrityData: data.CelebrityFaces
+            }
+
+            return resolve(rekogData);
+        });
+    });
+}
+
+const getCompareFaceInfo = function (fileName, prevData) {
+
+    const params = {
+        SimilarityThreshold: 80,
+        SourceImage: {
+            S3Object: {
+                Bucket: process.env.BUCKET_NAME,
+                Name: fileName
+            }
+        },
+        TargetImage: {
+            S3Object: {
+                Bucket: process.env.BUCKET_NAME,
+                Name: 'fromLocal.jpg'
+            }
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        rek.compareFaces(params, (err, data) => {
+            if (err) {
+                return reject(new Error(err));
+            }
+            console.log('Analysis face: ', data.FaceMatches);
+
+            const rekogData = {
+                labelsData: prevData.labelsData,
+                faceData: prevData.faceData,
+                celebrityData: prevData.celebrityData,
+                compareFaceData: data.FaceMatches
             }
 
             return resolve(rekogData);

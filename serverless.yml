@@ -86,6 +86,8 @@ functions:
   dcfDfym2cFYMconvertMessageToAudio:
     handler: fymConvertMessageToAudio.handler
     role: dcfDfym2cFymAddMessageRole
+    memorySize: 800
+    timeout: 40
     environment: 
       BUCKET_NAME: dcf-dfym2c-polly
       DB_TABLE_NAME: dcf-dfym2c-pollyTable
@@ -100,6 +102,8 @@ functions:
   FYMimageUploadFromURL:
     handler: fymUrlToS3.handler
     role: dcfDfym2cFymAddMessageRole
+    memorySize: 800
+    timeout: 40 
     environment:
       BUCKET_NAME: dcf-dfym2c-rekognition
   FYMlocalImageUpload:
