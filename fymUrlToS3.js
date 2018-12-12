@@ -57,6 +57,9 @@ const getImageDescription = function (fileName, callback) {
                 return getFaceInfo(fileName, data);
             })
             .then((data) => {
+                return getCelebrityInfo(fileName, data);
+            })
+            .then((data) => {
                 const response = {
                     statusCode: 200,
                     body: JSON.stringify({
@@ -132,3 +135,31 @@ const getFaceInfo = function (fileName, prevData) {
     });
 }
 
+const getCelebrityInfo = function (fileName, prevData) {
+
+    const params = {
+        Image: {
+            S3Object: {
+                Bucket: process.env.BUCKET_NAME,
+                Name: fileName
+            }
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        rek.recognizeCelebrities(params, (err, data) => {
+            if (err) {
+                return reject(new Error(err));
+            }
+            console.log('Analysis face: ', data.CelebrityFaces);
+
+            const rekogData = {
+                labelsData: prevData.labelsData,
+                faceData: prevData.faceData,
+                celebrityData: data.CelebrityFaces
+            }
+
+            return resolve(rekogData);
+        });
+    });
+}

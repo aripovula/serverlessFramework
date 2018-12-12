@@ -97,11 +97,6 @@ functions:
             'Fn::GetAtt':
             - 'dcfDfym2cTextToSpeechQueue'
             - 'Arn'
-  FYMimageAnalysis:
-    handler: fymImageAnalysis.handler
-    role: dcfDfym2cFymAddMessageRole
-    environment: 
-      BUCKET_NAME: dcf-dfym2c-rekognition
   FYMimageUploadFromURL:
     handler: fymUrlToS3.handler
     role: dcfDfym2cFymAddMessageRole
