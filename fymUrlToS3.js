@@ -47,40 +47,41 @@ const putToS3FromURL = function (fileName, theURL, callback) {
 
 const getImageDescription = function (fileName, callback) {
 
-    return new Promise((resolve, reject) => {
+    // return new Promise((resolve, reject) => {
 
 
-        // console.log(`Analyzing file: https://s3.amazonaws.com/${params.Image.S3Object.Bucket}/${params.Image.S3Object.Name}`);
+    // console.log(`Analyzing file: https://s3.amazonaws.com/${params.Image.S3Object.Bucket}/${params.Image.S3Object.Name}`);
 
-        return getLabels(fileName)
-            .then((data) => {
-                return getFaceInfo(fileName, data);
-            })
-            .then((data) => {
-                return getCelebrityInfo(fileName, data);
-            })
-            .then((data) => {
-                return getCompareFaceInfo(fileName, data);
-            })
-            .then((data) => {
-                const response = {
-                    statusCode: 200,
-                    body: JSON.stringify({
-                        Labels: data
-                    }),
-                };
-                callback(null, response);
-            })
-            .catch((error) => {
-                callback(null, {
-                    statusCode: error.statusCode || 501,
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    body: error.message || 'Internal server error',
-                });
+    // return getLabels(fileName)
+    //     .then((data) => {
+    //         return getFaceInfo(fileName, data);
+    //     })
+    //     .then((data) => {
+    //         return getCelebrityInfo(fileName, data);
+    //     })
+    //     .then((data) => {
+    //         return getCompareFaceInfo(fileName, data);
+    //     })
+    Promise.all([getLabels(fileName), getFaceInfo(fileName, null), getCelebrityInfo(fileName, null), getCompareFaceInfo(fileName, null)])
+        .then((data) => {
+            const response = {
+                statusCode: 200,
+                body: JSON.stringify({
+                    Labels: data
+                }),
+            };
+            callback(null, response);
+        })
+        .catch((error) => {
+            callback(null, {
+                statusCode: error.statusCode || 501,
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: error.message || 'Internal server error',
             });
-    });
+        });
+    // });
 }
 
 const getLabels = function (fileName) {
@@ -128,12 +129,12 @@ const getFaceInfo = function (fileName, prevData) {
             }
             console.log('Analysis face: ', data.FaceDetails);
 
-            const rekogData = {
-                labelsData: prevData,
-                faceData: data.FaceDetails
-            }
+            // const rekogData = {
+            //     labelsData: prevData,
+            //     faceData: data.FaceDetails
+            // }
 
-            return resolve(rekogData);
+            return resolve(data.FaceDetails);
         });
     });
 }
@@ -156,13 +157,13 @@ const getCelebrityInfo = function (fileName, prevData) {
             }
             console.log('Analysis face: ', data.CelebrityFaces);
 
-            const rekogData = {
-                labelsData: prevData.labelsData,
-                faceData: prevData.faceData,
-                celebrityData: data.CelebrityFaces
-            }
+            // const rekogData = {
+            //     labelsData: prevData.labelsData,
+            //     faceData: prevData.faceData,
+            //     celebrityData: data.CelebrityFaces
+            // }
 
-            return resolve(rekogData);
+            return resolve(data.CelebrityFaces);
         });
     });
 }
@@ -192,14 +193,14 @@ const getCompareFaceInfo = function (fileName, prevData) {
             }
             console.log('Analysis face: ', data.FaceMatches);
 
-            const rekogData = {
-                labelsData: prevData.labelsData,
-                faceData: prevData.faceData,
-                celebrityData: prevData.celebrityData,
-                compareFaceData: data.FaceMatches
-            }
+            // const rekogData = {
+            //     labelsData: prevData.labelsData,
+            //     faceData: prevData.faceData,
+            //     celebrityData: prevData.celebrityData,
+            //     compareFaceData: data.FaceMatches
+            // }
 
-            return resolve(rekogData);
+            return resolve(data.FaceMatches);
         });
     });
 }
