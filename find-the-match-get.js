@@ -36,13 +36,27 @@ exports.handler = (event, context, callback) => {
                         data.Items.map((item) => {
                             let JsObjectItem = {
                                 id: "" + item.UserID.S,
-                                userName: "" + item.userName.S,
-                                otherDetails: "" + item.otherDetails.S
+                                criteriaSet: "" + item.criteriaSet.S,
+                                userName: "" + item.userNameF.S,
+                                userImage: "" + item.fImage.S
                             };
                             // if (JsObjectItem.gender === 'female' && JsObjectItem.interests.includes('design')) {
                             dataAsJsObject.push(JsObjectItem);
                             // }
                         });
+                        data.Items.map((item) => {
+                            const idMales = parseInt(item.UserID.S, 10) + 48;
+                            let JsObjectItem = {
+                                id: "" + idMales,
+                                criteriaSet: "" + item.criteriaSet.S,
+                                userName: "" + item.userNameM.S,
+                                userImage: "" + item.mImage.S
+                            };
+                            // if (JsObjectItem.gender === 'female' && JsObjectItem.interests.includes('design')) {
+                            dataAsJsObject.push(JsObjectItem);
+                            // }
+                        });
+
                         console.log(data);
                         console.log(dataAsJsObject);
                         callback(null, dataAsJsObject);
@@ -84,8 +98,10 @@ exports.handler = (event, context, callback) => {
 
                         callback(null, {
                             id: "" + data.Item.UserID.S,
-                            userName: "" + data.Item.userName.S,
-                            otherDetails: "" + data.Item.otherDetails.S
+                            criteriaSet: "" + data.Item.criteriaSet.S,
+                            userName: "" + data.Item.maleName.S,
+                            userImage: "" + data.Item.mImage.S
+
                         });
                     }
                 });
