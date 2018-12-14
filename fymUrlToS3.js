@@ -19,7 +19,7 @@ module.exports.handler = (event, context, callback) => {
 
 const putToS3FromURL = function (fileName, theURL, callback) {
     var options = {
-        uri: theURL, // 'https://images.freeimages.com/images/small-previews/443/horse-1393073.jpg',
+        uri: theURL,
         encoding: null
     };
     request(options, function (error, response, body) {
@@ -47,22 +47,12 @@ const putToS3FromURL = function (fileName, theURL, callback) {
 
 const getImageDescription = function (fileName, callback) {
 
-    // return new Promise((resolve, reject) => {
-
-
-    // console.log(`Analyzing file: https://s3.amazonaws.com/${params.Image.S3Object.Bucket}/${params.Image.S3Object.Name}`);
-
-    // return getLabels(fileName)
-    //     .then((data) => {
-    //         return getFaceInfo(fileName, data);
-    //     })
-    //     .then((data) => {
-    //         return getCelebrityInfo(fileName, data);
-    //     })
-    //     .then((data) => {
-    //         return getCompareFaceInfo(fileName, data);
-    //     })
-    Promise.all([getLabels(fileName), getFaceInfo(fileName, null), getCelebrityInfo(fileName, null), getCompareFaceInfo(fileName, null)])
+    Promise.all([
+        getLabels(fileName),
+        getFaceInfo(fileName),
+        getCelebrityInfo(fileName),
+        getCompareFaceInfo(fileName)
+    ])
         .then((data) => {
             const response = {
                 statusCode: 200,
@@ -81,7 +71,6 @@ const getImageDescription = function (fileName, callback) {
                 body: error.message || 'Internal server error',
             });
         });
-    // });
 }
 
 const getLabels = function (fileName) {
@@ -108,7 +97,7 @@ const getLabels = function (fileName) {
     });
 }
 
-const getFaceInfo = function (fileName, prevData) {
+const getFaceInfo = function (fileName) {
 
     const params = {
         Image: {
@@ -129,17 +118,12 @@ const getFaceInfo = function (fileName, prevData) {
             }
             console.log('Analysis face: ', data.FaceDetails);
 
-            // const rekogData = {
-            //     labelsData: prevData,
-            //     faceData: data.FaceDetails
-            // }
-
             return resolve(data.FaceDetails);
         });
     });
 }
 
-const getCelebrityInfo = function (fileName, prevData) {
+const getCelebrityInfo = function (fileName) {
 
     const params = {
         Image: {
@@ -157,18 +141,12 @@ const getCelebrityInfo = function (fileName, prevData) {
             }
             console.log('Analysis face: ', data.CelebrityFaces);
 
-            // const rekogData = {
-            //     labelsData: prevData.labelsData,
-            //     faceData: prevData.faceData,
-            //     celebrityData: data.CelebrityFaces
-            // }
-
             return resolve(data.CelebrityFaces);
         });
     });
 }
 
-const getCompareFaceInfo = function (fileName, prevData) {
+const getCompareFaceInfo = function (fileName) {
 
     const params = {
         SimilarityThreshold: 80,
@@ -192,13 +170,6 @@ const getCompareFaceInfo = function (fileName, prevData) {
                 return reject(new Error(err));
             }
             console.log('Analysis face: ', data.FaceMatches);
-
-            // const rekogData = {
-            //     labelsData: prevData.labelsData,
-            //     faceData: prevData.faceData,
-            //     celebrityData: prevData.celebrityData,
-            //     compareFaceData: data.FaceMatches
-            // }
 
             return resolve(data.FaceMatches);
         });
