@@ -539,7 +539,7 @@ resources:
           info:
             version: "2018-11-15T18:34:04Z"
             title: "FYMapi"
-          host: "62zvlk9vrc.execute-api.us-east-1.amazonaws.com"
+          host: "lmpyzv9fz8.execute-api.us-east-1.amazonaws.com"
           basePath: "/development"
           schemes:
           - "https"
@@ -676,6 +676,10 @@ resources:
                   in: "query"
                   required: true
                   type: "string"
+                - name: "criteriaSet"
+                  in: "query"
+                  required: true
+                  type: "string"
                 responses:
                   '200':
                     description: "200 response"
@@ -698,8 +702,9 @@ resources:
                   requestTemplates:
                     application/json: "{\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
                       ,\n    \"type\": \"$util.escapeJavaScript($input.params('type'))\",\n\
-                      \    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
-                      \n\n}"
+                      \    \"criteriaSet\": \"$util.escapeJavaScript($input.params('criteriaSet'))\"\
+                      ,\n    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
+                      \n}"
                   passthroughBehavior: "when_no_templates"
                   httpMethod: "POST"
                   contentHandling: "CONVERT_TO_TEXT"
@@ -830,10 +835,6 @@ resources:
                 produces:
                 - "application/json"
                 parameters:
-                - name: "requestorID"
-                  in: "query"
-                  required: true
-                  type: "string"
                 - name: "type"
                   in: "path"
                   required: true
@@ -868,7 +869,6 @@ resources:
                   requestTemplates:
                     application/json: "{\n    \"type\": \"$util.escapeJavaScript($input.params('type'))\"\
                       ,\n    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
-                      ,\n    \"requestorID\": \"$util.escapeJavaScript($input.params('requestorID'))\"\
                       ,\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
                       \n}"
                   passthroughBehavior: "when_no_templates"
@@ -1034,11 +1034,11 @@ resources:
             candidate:
               type: "object"
               properties:
-                userName:
+                otherDetails:
                   type: "string"
                 id:
                   type: "string"
-                otherDetails:
+                userName:
                   type: "string"
               title: "candidate"
           x-amazon-apigateway-request-validators:
@@ -1053,4 +1053,3 @@ resources:
     NewOutput:
       Description: "Description for the output"
       Value: "Some output value"
-

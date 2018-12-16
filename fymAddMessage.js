@@ -6,7 +6,7 @@ const sqs = new AWS.SQS();
 
 exports.handler = (event, context, callback) => {
     const record = {
-        id: uuid(),
+        id: event.candidateID + '-1ULA',
         text: event.text,
         voice: event.voice,
         status: 'PROCESSING'

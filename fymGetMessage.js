@@ -1,13 +1,14 @@
 const AWS = require('aws-sdk');
 
 exports.handler = (event, context, callback) => {
+    console.log('event =', event);
     const docClient = new AWS.DynamoDB.DocumentClient();
-
+    const pollyS3id = event.candidateID;
     const params = {
         TableName: process.env.DB_TABLE_NAME
     };
 
-    if (!event.noteId || event.noteId === '') {
+    if (!pollyS3id || pollyS3id === '') {
         docClient.scan(params, (err, data) => {
             if (err) {
                 // context.succeed({ success: false, error: err });
@@ -19,7 +20,7 @@ exports.handler = (event, context, callback) => {
         });
     } else {
         params.Key = {
-            "id": event.noteId
+            "id": pollyS3id
         };
         docClient.get(params, (err, data) => {
             if (err) {

@@ -8,6 +8,7 @@ exports.handler = (event, context, callback) => {
     console.log('event = ', event);
     const accessToken = event.accessToken;
     const candidateID = event.candidateID;
+    const criteriaSet = decodeURIComponent(event.criteriaSet);
 
     const cispParams = {
         "AccessToken": accessToken
@@ -64,10 +65,21 @@ exports.handler = (event, context, callback) => {
                 });
             } else if (type === 'single') {
                 console.log('in single mode');
+                const criteriaSetObj = JSON.parse(criteriaSet);
+
                 // 1. Trigger Step functions
+                const firstName = criteriaSetObj.firstName;
+                const nickname = criteriaSetObj.nickname;
+                const requestedGender = criteriaSetObj.genderFind;
+                const voice = requestedGender == 'male' ? 'Matthew' : 'Salli';
+
                 const params4step = {
                     stateMachineArn: process.env.statemachine_arn,
-                    input: JSON.stringify({ "candidate_name": candidateID, "text": "Again Testings Step functions from Lambda", "voice": "Salli" })
+                    input: JSON.stringify({
+                        "candidateID": candidateID,
+                        "text": "Hi " + firstName + "! Do you mind if I call you " + nickname + "? I am glad we got in touch. Can you send me your photo ?",
+                        "voice": voice
+                    })
                 }
 
                 stepfunctions.startExecution(params4step, function (err, data) {
@@ -79,30 +91,68 @@ exports.handler = (event, context, callback) => {
                 });
 
                 // 2. Find the match and return
+                const isASmokerFind = criteriaSetObj.isASmokerFind;
+                let personalityTypeFind = criteriaSetObj.personalityTypeFind;
+                let characterFind = criteriaSetObj.characterFind;
+                let behavingFind = criteriaSetObj.behavingFind;
+                let lovePetsFind = criteriaSetObj.lovePetsFind;
+
+                personalityTypeFind = personalityTypeFind.replace("rather sociable (extrovert)", "Extrovert");
+                personalityTypeFind = personalityTypeFind.replace("rather on my own (introvert)", "Introvert");
+                characterFind = characterFind.replace("rather active (outdoor, sports)", "Active");
+                characterFind = characterFind.replace("rather lazy", "Lazy");
+                behavingFind = behavingFind.replace("impulsive", "Impulsive");
+                behavingFind = behavingFind.replace("calm", "Calm");
+                lovePetsFind = lovePetsFind.replace("yes", "LovesPets");
+                lovePetsFind = lovePetsFind.replace("no", "HatesPets");
+                lovePetsFind = lovePetsFind.replace("depends", "SomePets");
+
+                let criteriaSetFromUser = isASmokerFind + ';'
+                    + personalityTypeFind + ';'
+                    + characterFind + ';'
+                    + behavingFind + ';'
+                    + lovePetsFind;
+                criteriaSetFromUser = criteriaSetFromUser.trim();
+                // smoker;Extrovert;Active;Calm;LovesPets
+                // smoker;rather sociable (extrovert);rather lazy;impulsive;no
+                console.log('criteriaSetFromUser = -' + criteriaSetFromUser + '-', criteriaSetFromUser.length);
+                const newT = "abcTest";
+                console.log('newT = -' + newT + '-', newT.length);
                 const params = {
-                    Key: {
-                        "UserID": {
-                            S: candidateID
+                    TableName: 'dcf-dfym2c-usersTable',
+                    IndexName: "criteriaSet-index",
+                    KeyConditionExpression: "criteriaSet = :a",
+                    ExpressionAttributeValues: {
+                        ":a": {
+                            S: criteriaSetFromUser
                         }
                     },
-                    TableName: 'dcf-dfym2c-usersTable'
+                    ProjectionExpression: "userNameM, userNameF, mImage, fImage",
+                    ScanIndexForward: false
                 };
 
-                dynamodb.getItem(params, function (err, data) {
+                dynamodb.query(params, function (err, data) {
                     if (err) {
-                        console.log(err);
-                        callback(err);
+                        console.log(err, criteriaSetFromUser);
+                        callback({ err: err, text: criteriaSetFromUser });
                     } else {
-                        console.log(data);
-
-
-                        callback(null, {
-                            id: "" + data.Item.UserID.S,
-                            criteriaSet: "" + data.Item.criteriaSet.S,
-                            userName: "" + data.Item.maleName.S,
-                            userImage: "" + data.Item.mImage.S
-
-                        });
+                        console.log('single = ', data.Items[0]);
+                        const simulatedDeviationOnOtherFactors = Math.round(Math.random() * (10 - 4) + 4);
+                        if (requestedGender == 'male') {
+                            callback(null, JSON.stringify({
+                                searchText: criteriaSetFromUser,
+                                name: data.Items[0].userNameM.S,
+                                image: 'https://' + data.Items[0].mImage.S,
+                                matchRate: 100 - simulatedDeviationOnOtherFactors
+                            }));
+                        } else {
+                            callback(null, JSON.stringify({
+                                searchText: criteriaSetFromUser,
+                                name: data.Items[0].userNameF.S,
+                                image: 'https://' + data.Items[0].fImage.S,
+                                matchRate: 100 - simulatedDeviationOnOtherFactors
+                            }));
+                        }
                     }
                 });
             } else {
