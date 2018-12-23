@@ -6,12 +6,13 @@ const sqs = new AWS.SQS();
 
 exports.handler = (event, context, callback) => {
     const record = {
-        id: event.candidateID + '-1ULA',
+        id: event.candidateID,
         text: event.text,
         voice: event.voice,
         status: 'PROCESSING'
     };
-
+    console.log('event = ', event);
+    console.log('record = ', record);
     const params = {
         TableName: process.env.DB_TABLE_NAME,
         Item: record
@@ -27,9 +28,11 @@ exports.handler = (event, context, callback) => {
                 QueueUrl: process.env.QUEUE_URL
             }, (err, data) => {
                 if (err) {
+                    console.log('err = ', err);
                     // context.succeed({ success: false, error: err });
                     callback(err);
                 } else {
+                    console.log('data = ', data);
                     // context.succeed({ success: true, data: record });
                     callback(null, record);
                 }

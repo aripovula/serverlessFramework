@@ -9,11 +9,12 @@ module.exports.handler = (event, context, callback) => {
     console.log('event', event);
     const type = event.type;
     const theURL = decodeURIComponent(event.imageUrl);
+    const candidateID = event.candidateID;
     console.log('theURL = ', theURL);
 
     console.log('type = ', type);
-    if (type === "1") putToS3FromURL('fromURL.jpg', theURL, callback);
-    if (type === "2") getImageDescription('fromLocal.jpg', callback);
+    if (type === "1") putToS3FromURL(candidateID + '.jpg', theURL, callback);
+    if (type === "2") getImageDescription(candidateID + '.jpg', callback);
 
 }
 
@@ -30,7 +31,7 @@ const putToS3FromURL = function (fileName, theURL, callback) {
             console.log('body = ', body);
             s3.putObject({
                 Body: body,
-                Key: 'fromURL.jpg',
+                Key: fileName,
                 Bucket: 'dcf-dfym2c-rekognition'
             }, function (error, data) {
                 if (error) {
@@ -56,9 +57,7 @@ const getImageDescription = function (fileName, callback) {
         .then((data) => {
             const response = {
                 statusCode: 200,
-                body: JSON.stringify({
-                    Labels: data
-                }),
+                body: JSON.stringify(data),
             };
             callback(null, response);
         })
@@ -89,7 +88,8 @@ const getLabels = function (fileName) {
     return new Promise((resolve, reject) => {
         rek.detectLabels(params, (err, data) => {
             if (err) {
-                return reject(new Error(err));
+                console.log('Labels err = ', err);
+                return resolve(err.toString());
             }
             console.log('Analysis labels:', data.Labels);
             return resolve(data.Labels);
@@ -114,9 +114,10 @@ const getFaceInfo = function (fileName) {
     return new Promise((resolve, reject) => {
         rek.detectFaces(params, (err, data) => {
             if (err) {
-                return reject(new Error(err));
+                console.log('detectFaces err = ', err);
+                return resolve(err.toString());
             }
-            console.log('Analysis face: ', data.FaceDetails);
+            console.log('Analysis FaceDetails: ', data.FaceDetails);
 
             return resolve(data.FaceDetails);
         });
@@ -137,9 +138,10 @@ const getCelebrityInfo = function (fileName) {
     return new Promise((resolve, reject) => {
         rek.recognizeCelebrities(params, (err, data) => {
             if (err) {
-                return reject(new Error(err));
+                console.log('Celebs err = ', err);
+                return resolve(err.toString());
             }
-            console.log('Analysis face: ', data.CelebrityFaces);
+            console.log('Analysis CelebrityFaces: ', data.CelebrityFaces);
 
             return resolve(data.CelebrityFaces);
         });
@@ -147,8 +149,15 @@ const getCelebrityInfo = function (fileName) {
 }
 
 const getCompareFaceInfo = function (fileName) {
-
-    const params = {
+    let params;
+    let newFileName;
+    if (fileName.includes('-4ULA.jpg')) {
+        newFileName = fileName.replace('-4ULA.jpg', '-1ULA.jpg');
+    } else if (fileName.includes('-2ULA.jpg')) {
+        newFileName = fileName.replace('-2ULA.jpg', '-1ULA.jpg');
+    }
+    console.log('newFileName = ', newFileName);
+    params = {
         SimilarityThreshold: 80,
         SourceImage: {
             S3Object: {
@@ -159,19 +168,26 @@ const getCompareFaceInfo = function (fileName) {
         TargetImage: {
             S3Object: {
                 Bucket: process.env.BUCKET_NAME,
-                Name: 'fromLocal.jpg'
+                Name: newFileName
             }
         }
     };
 
     return new Promise((resolve, reject) => {
-        rek.compareFaces(params, (err, data) => {
-            if (err) {
-                return reject(new Error(err));
-            }
-            console.log('Analysis face: ', data.FaceMatches);
+        console.log('in compare Promise = ');
+        if (fileName.includes('-2ULA.jpg') || fileName.includes('-4ULA.jpg')) {
+            rek.compareFaces(params, (err, data) => {
+                if (err) {
+                    console.log('compareFaces', err);
+                    return resolve(err.toString());
+                }
+                console.log('Analysis FaceMatches: ', data.FaceMatches);
 
-            return resolve(data.FaceMatches);
-        });
+                return resolve(data.FaceMatches);
+            });
+        } else {
+            return resolve('not applicable');
+        }
     });
+
 }

@@ -94,6 +94,15 @@ functions:
     role: dcfDfym2cFymAddMessageRole
     environment: 
       DB_TABLE_NAME: dcf-dfym2c-pollyTable
+      statemachine_arn:
+        'Fn::Join':
+        - ':'
+        -
+          - 'arn:aws:states'
+          - Ref: 'AWS::Region'
+          - Ref: 'AWS::AccountId'
+          - 'stateMachine:dcfDfym2cStepPollyCWatch'
+
 
   dcfDfym2cFYMconvertMessageToAudio:
     handler: fymConvertMessageToAudio.handler
@@ -148,7 +157,7 @@ stepFunctions:
                 States:
                   StartPolly:
                     Type: "Task"
-                    Resource: "arn:aws:lambda:us-east-1:@cc*^nt#:function:FYM-pre-sign-in"
+                    Resource: "arn:aws:lambda:us-east-1:@cc*^nt:function:FYM-pre-sign-in"
                       # - Fn::Join:
                       #   - ':'
                       #   -
@@ -509,6 +518,18 @@ resources:
                     - polly:*
                     - rekognition:*
                   Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - states:*
+                  Resource: 
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:states'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'stateMachine:dcfDfym2c*' 
+
                     # - 'Fn::Join':
                     #   - ':'
                     #   -
@@ -572,7 +593,7 @@ resources:
                 - FYM-Cognito-cognito-authorizer: []
                 x-amazon-apigateway-request-validator: "Validate body"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt#:function:dcf-dfym2c-dev-FYM-post/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt:function:dcf-dfym2c-dev-FYM-post/invocations"
                   responses:
                     default:
                       statusCode: "200"
@@ -614,7 +635,7 @@ resources:
                 x-amazon-apigateway-request-validator: "Validate query string parameters and\
                   \ headers"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt#:function:dcf-dfym2c-dev-FYM-delete/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt:function:dcf-dfym2c-dev-FYM-delete/invocations"
                   responses:
                     default:
                       statusCode: "200"
@@ -693,7 +714,7 @@ resources:
                 x-amazon-apigateway-request-validator: "Validate query string parameters and\
                   \ headers"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt#:function:dcf-dfym2c-dev-FYM-get/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt:function:dcf-dfym2c-dev-FYM-get/invocations"
                   responses:
                     default:
                       statusCode: "200"
@@ -753,7 +774,7 @@ resources:
                       Access-Control-Allow-Origin:
                         type: "string"
                 x-amazon-apigateway-integration:
-                  credentials: "arn:aws:iam::@cc*^nt#:role/APIGatewayToStepFunctions"
+                  credentials: "arn:aws:iam::@cc*^nt:role/APIGatewayToStepFunctions"
                   uri: "arn:aws:apigateway:us-east-1:states:action/StartExecution"
                   responses:
                     default:
@@ -764,7 +785,7 @@ resources:
                     application/json: "## #set($inputRoot = $input.path('$')) {\n##     \"a\"\
                       \ : \"$inputRoot.a\",\n##     \"b\" : \"$inputRoot.b\",\n\n{\n    \"input\"\
                       : \"$util.escapeJavaScript($input.json('$'))\",\n    \"stateMachineArn\"\
-                      : \"arn:aws:states:us-east-1:@cc*^nt#:stateMachine:find-the-match-start-relations-step-functions\"\
+                      : \"arn:aws:states:us-east-1:@cc*^nt:stateMachine:find-the-match-start-relations-step-functions\"\
                       \n}"
                   passthroughBehavior: "when_no_templates"
                   httpMethod: "POST"
@@ -847,6 +868,10 @@ resources:
                   in: "query"
                   required: true
                   type: "string"
+                - name: "params"
+                  in: "query"
+                  required: true
+                  type: "string"
                 responses:
                   '200':
                     description: "200 response"
@@ -860,7 +885,7 @@ resources:
                 x-amazon-apigateway-request-validator: "Validate query string parameters and\
                   \ headers"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt#:function:dcf-dfym2c-dev-FYMgetMessage/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt:function:dcf-dfym2c-dev-FYMgetMessage/invocations"
                   responses:
                     default:
                       statusCode: "200"
@@ -869,6 +894,7 @@ resources:
                   requestTemplates:
                     application/json: "{\n    \"type\": \"$util.escapeJavaScript($input.params('type'))\"\
                       ,\n    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
+                      ,\n    \"params\": \"$util.escapeJavaScript($input.params('params'))\"\
                       ,\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
                       \n}"
                   passthroughBehavior: "when_no_templates"
@@ -911,10 +937,6 @@ resources:
                 produces:
                 - "application/json"
                 parameters:
-                - name: "requestorID"
-                  in: "query"
-                  required: true
-                  type: "string"
                 - name: "accessToken"
                   in: "query"
                   required: true
@@ -936,7 +958,7 @@ resources:
                 x-amazon-apigateway-request-validator: "Validate query string parameters and\
                   \ headers"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt#:function:dcf-dfym2c-dev-FYMimageUploadFromURL/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt:function:dcf-dfym2c-dev-FYMimageUploadFromURL/invocations"
                   responses:
                     default:
                       statusCode: "200"
@@ -946,7 +968,6 @@ resources:
                     application/json: "{\n    \"accessToken\": \"$util.escapeJavaScript($input.params('accessToken'))\"\
                       ,\n    \"type\": \"$util.escapeJavaScript($input.params('type'))\",\n\
                       \    \"candidateID\": \"$util.escapeJavaScript($input.params('candidateID'))\"\
-                      ,\n    \"requestorID\": \"$util.escapeJavaScript($input.params('requestorID'))\"\
                       ,\n    \"imageUrl\": \"$util.escapeJavaScript($input.params('imageUrl'))\"\
                       \n}"
                   passthroughBehavior: "when_no_templates"
@@ -975,7 +996,7 @@ resources:
                 - FYM-Cognito-cognito-authorizer: []
                 x-amazon-apigateway-request-validator: "Validate body"
                 x-amazon-apigateway-integration:
-                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt#:function:dcf-dfym2c-dev-FYMlocalImageUpload/invocations"
+                  uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:@cc*^nt:function:dcf-dfym2c-dev-FYMlocalImageUpload/invocations"
                   responses:
                     default:
                       statusCode: "200"
@@ -1025,7 +1046,7 @@ resources:
               x-amazon-apigateway-authtype: "cognito_user_pools"
               x-amazon-apigateway-authorizer:
                 providerARNs:
-                - "arn:aws:cognito-idp:us-east-1:@cc*^nt#:userpool/us-east-1_6wmO1o7KH"
+                - "arn:aws:cognito-idp:us-east-1:@cc*^nt:userpool/us-east-1_6wmO1o7KH"
                 type: "cognito_user_pools"
           definitions:
             Empty:
@@ -1048,6 +1069,7 @@ resources:
             Validate query string parameters and headers:
               validateRequestParameters: true
               validateRequestBody: false
+
 
   Outputs:
     NewOutput:

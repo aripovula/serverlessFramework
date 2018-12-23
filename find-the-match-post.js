@@ -64,9 +64,11 @@ exports.handler = (event, context, callback) => {
                                         putToDynamoDB(callback, x, malesArray[x], mImagesArray[x], femalesArray[x], fImagesArray[x], criteriaSet);
                                         x++;
                                     }
+
                                 }
                             }
                         }
+
                     }
                     callback(null, "done");
                 }
