@@ -1,0 +1,61 @@
+{
+  "Comment": "DoInParallelPollyAndCWatch",
+  "StartAt": "PassData",
+  "States": {
+    "PassData": {
+      "Type": "Pass",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "OutputPath": "$",
+      "Next": "DoInParallel"
+    },
+    "DoInParallel": {
+      "Type": "Parallel",
+      "End": true,
+      "Branches": [
+        {
+          "StartAt": "StartAudioMessageGeneration",
+          "States": {
+            "StartAudioMessageGeneration": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:520649825970:function:dcf-dfym2c-dev-FYMaddMessage",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "isFirstWithNewID",
+          "States": {
+            "isFirstWithNewID": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Not": {
+                    "Variable": "$.lastFive",
+                    "StringEquals": "-0ULA"
+                  },
+                  "Next": "EndNow"
+                }
+              ],
+              "Default": "Wait20MinsBeforeDelete"
+            },
+            "EndNow": {
+              "Type": "Pass",
+              "End": true
+            },
+            "Wait20MinsBeforeDelete": {
+              "Type": "Wait",
+              "Seconds": 1200,
+              "Next": "DeleteImagesMp3sDynamoRecords"
+            },
+            "DeleteImagesMp3sDynamoRecords": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:520649825970:function:dcf-dfym2c-dev-FYM-deleteDataIn20Mins",
+              "End": true
+            }
+          }
+        }
+      ]
+    }
+  }
+}

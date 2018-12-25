@@ -4,23 +4,24 @@ const dynamodb = new AWS.DynamoDB({
     region: 'us-east-1',
     apiVersion: '2012-08-10'
 });
-const cisp = new AWS.CognitoIdentityServiceProvider({
-    apiVersion: '2016-04-18'
-});
+// commented out code can be uncommented if the function is to be reached thru API Gateway
+// const cisp = new AWS.CognitoIdentityServiceProvider({
+//     apiVersion: '2016-04-18'
+// });
 const s3 = new AWS.S3();
 
 exports.handler = (event, context, callback) => {
     console.log('event', event);
-    const accessToken = event.accessToken;
-    const cispParams = {
-        "AccessToken": accessToken
-    };
+    // const accessToken = event.accessToken;
+    // const cispParams = {
+    //     "AccessToken": accessToken
+    // };
 
-    cisp.getUser(cispParams, (err, result) => {
-        if (err) {
-            console.log(err);
-            callback(err);
-        } else {
+    // cisp.getUser(cispParams, (err, result) => {
+    //     if (err) {
+    //         console.log(err);
+    //         callback(err);
+    //     } else {
 
             let malesArray;
             let mImagesArray;
@@ -41,12 +42,8 @@ exports.handler = (event, context, callback) => {
                 if (err) {
                     console.log(err, err.stack);
                 } else {
-                    // console.log('pseudoUsers data = ', data);
-                    // console.log('pseudoUsers.body = ', data.Body);
                     const pseudoUsers = data.Body.toString('ascii');
-                    // console.log('pseudoUsers = ', pseudoUsers);
                     const pseudoUsersObj = JSON.parse(pseudoUsers);
-                    // console.log('pseudoUsers females = ', pseudoUsersObj.femaleNames);
                     malesArray = pseudoUsersObj.maleNames.split(',');
                     mImagesArray = pseudoUsersObj.maleImages.split(',');
                     femalesArray = pseudoUsersObj.femaleNames.split(',');
@@ -74,23 +71,11 @@ exports.handler = (event, context, callback) => {
                 }
             });
         }
-    });
-};
+//     });
+// };
 
 const putToDynamoDB = function (callback, id, maleName, mImage, femaleName, fImage, criteriaSet) {
-    // const id = event.id;
-    // const userName = event.userName;
-    // const otherDetails = event.otherDetails;
-    // console.log('event', event);
-    // console.log('id', id);
-    // console.log('userName', userName);
-    // console.log('otherDetails', otherDetails);
-    // console.log('AWS', AWS === null);
-    // console.log('dynamodb', dynamodb === null);
 
-    // callback(null, "Hi "+name+". Followings were recorded in DynamoDB "+interests);
-
-    // callback, id, maleName, mImage, female, fImage, criteriaSet
     let params = {
         Item: {
             "UserID": {

@@ -72,11 +72,14 @@ exports.handler = (event, context, callback) => {
                 const nickname = criteriaSetObj.nickname;
                 const requestedGender = criteriaSetObj.genderFind;
                 const voice = requestedGender == 'male' ? 'Matthew' : 'Salli';
+                const lastFive = candidateID.substring(candidateID.length - 5);
+                console.log('isFirstWithNewID = ', lastFive);
 
                 const params4step = {
                     stateMachineArn: process.env.statemachine_arn,
                     input: JSON.stringify({
                         "candidateID": candidateID,
+                        "lastFive": lastFive,
                         "text": "Hi " + firstName + "! Do you mind if I call you " + nickname + "? I am glad we got in touch. Can you send me your photo ?",
                         "voice": voice
                     })
@@ -116,8 +119,8 @@ exports.handler = (event, context, callback) => {
                 // smoker;Extrovert;Active;Calm;LovesPets
                 // smoker;rather sociable (extrovert);rather lazy;impulsive;no
                 console.log('criteriaSetFromUser = -' + criteriaSetFromUser + '-', criteriaSetFromUser.length);
-                const newT = "abcTest";
-                console.log('newT = -' + newT + '-', newT.length);
+                // const newT = "abcTest";
+                // console.log('newT = -'+newT+'-',newT.length);
                 const params = {
                     TableName: 'dcf-dfym2c-usersTable',
                     IndexName: "criteriaSet-index",

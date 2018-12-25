@@ -61,6 +61,7 @@ exports.handler = (event, context, callback) => {
                     stateMachineArn: process.env.statemachine_arn,
                     input: JSON.stringify({
                         "candidateID": event.candidateID,
+                        "lastFive": 'notFirst',
                         "text": textToSynth,
                         "voice": voice
                     })

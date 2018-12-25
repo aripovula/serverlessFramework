@@ -17,6 +17,7 @@ module.exports.handler = (event, context, callback) => {
             callback(err);
         } else {
             let image = JSON.parse(event.image.image);
+            const candidateID = event.candidateID;
             if (image == null) {
                 console.log("failed to get image");
             } else {
@@ -24,7 +25,7 @@ module.exports.handler = (event, context, callback) => {
 
                 const buf = new Buffer(image._imageAsDataUrl.replace(/^data:image\/\w+;base64,/, ""), 'base64')
                 const data = {
-                    Key: 'fromLocal.jpg',
+                    Key: candidateID + '.jpg',
                     Body: buf,
                     ContentEncoding: 'base64',
                     ContentType: 'image/jpeg',

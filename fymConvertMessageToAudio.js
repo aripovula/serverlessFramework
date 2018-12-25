@@ -59,6 +59,7 @@ const updateRecord = function (postId, status, url, callback) {
     docClient.update(params, callback);
 }
 exports.handler = (event, context, callback) => {
+    console.log('event Polly = ', event);
     var postId = event["Records"][0].body;
     var receiptHandle = event["Records"][0].receiptHandle;
 
